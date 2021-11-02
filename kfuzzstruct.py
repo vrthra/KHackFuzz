@@ -15,7 +15,7 @@ PY2 = sys.version_info[0] == 2
 __version__ = '0.9'
 
 
-class KFuzzStruct(object):
+class KaitaiStruct(object):
     def __init__(self, stream):
         self._io = stream
 
@@ -32,7 +32,7 @@ class KFuzzStruct(object):
     def from_file(cls, filename):
         f = open(filename, 'rb')
         try:
-            return cls(KFuzzStream(f))
+            return cls(KaitaiStream(f))
         except Exception:
             # close file descriptor, then reraise the exception
             f.close()
@@ -40,14 +40,14 @@ class KFuzzStruct(object):
 
     @classmethod
     def from_bytes(cls, buf):
-        return cls(KFuzzStream(BytesIO(buf)))
+        return cls(KaitaiStream(BytesIO(buf)))
 
     @classmethod
     def from_io(cls, io):
-        return cls(KFuzzStream(io))
+        return cls(KaitaiStream(io))
 
 
-class KFuzzStream(object):
+class KaitaiStream(object):
     def __init__(self, io):
         self._io = io
         self.align_to_byte()
@@ -123,66 +123,66 @@ class KFuzzStream(object):
     # ------------------------------------------------------------------------
 
     def read_s1(self):
-        return KFuzzStream.packer_s1.unpack(self.read_bytes(1))[0]
+        return KaitaiStream.packer_s1.unpack(self.read_bytes(1))[0]
 
     # ........................................................................
     # Big-endian
     # ........................................................................
 
     def read_s2be(self):
-        return KFuzzStream.packer_s2be.unpack(self.read_bytes(2))[0]
+        return KaitaiStream.packer_s2be.unpack(self.read_bytes(2))[0]
 
     def read_s4be(self):
-        return KFuzzStream.packer_s4be.unpack(self.read_bytes(4))[0]
+        return KaitaiStream.packer_s4be.unpack(self.read_bytes(4))[0]
 
     def read_s8be(self):
-        return KFuzzStream.packer_s8be.unpack(self.read_bytes(8))[0]
+        return KaitaiStream.packer_s8be.unpack(self.read_bytes(8))[0]
 
     # ........................................................................
     # Little-endian
     # ........................................................................
 
     def read_s2le(self):
-        return KFuzzStream.packer_s2le.unpack(self.read_bytes(2))[0]
+        return KaitaiStream.packer_s2le.unpack(self.read_bytes(2))[0]
 
     def read_s4le(self):
-        return KFuzzStream.packer_s4le.unpack(self.read_bytes(4))[0]
+        return KaitaiStream.packer_s4le.unpack(self.read_bytes(4))[0]
 
     def read_s8le(self):
-        return KFuzzStream.packer_s8le.unpack(self.read_bytes(8))[0]
+        return KaitaiStream.packer_s8le.unpack(self.read_bytes(8))[0]
 
     # ------------------------------------------------------------------------
     # Unsigned
     # ------------------------------------------------------------------------
 
     def read_u1(self):
-        return KFuzzStream.packer_u1.unpack(self.read_bytes(1))[0]
+        return KaitaiStream.packer_u1.unpack(self.read_bytes(1))[0]
 
     # ........................................................................
     # Big-endian
     # ........................................................................
 
     def read_u2be(self):
-        return KFuzzStream.packer_u2be.unpack(self.read_bytes(2))[0]
+        return KaitaiStream.packer_u2be.unpack(self.read_bytes(2))[0]
 
     def read_u4be(self):
-        return KFuzzStream.packer_u4be.unpack(self.read_bytes(4))[0]
+        return KaitaiStream.packer_u4be.unpack(self.read_bytes(4))[0]
 
     def read_u8be(self):
-        return KFuzzStream.packer_u8be.unpack(self.read_bytes(8))[0]
+        return KaitaiStream.packer_u8be.unpack(self.read_bytes(8))[0]
 
     # ........................................................................
     # Little-endian
     # ........................................................................
 
     def read_u2le(self):
-        return KFuzzStream.packer_u2le.unpack(self.read_bytes(2))[0]
+        return KaitaiStream.packer_u2le.unpack(self.read_bytes(2))[0]
 
     def read_u4le(self):
-        return KFuzzStream.packer_u4le.unpack(self.read_bytes(4))[0]
+        return KaitaiStream.packer_u4le.unpack(self.read_bytes(4))[0]
 
     def read_u8le(self):
-        return KFuzzStream.packer_u8le.unpack(self.read_bytes(8))[0]
+        return KaitaiStream.packer_u8le.unpack(self.read_bytes(8))[0]
 
     # ========================================================================
     # Floating point numbers
@@ -198,20 +198,20 @@ class KFuzzStream(object):
     # ........................................................................
 
     def read_f4be(self):
-        return KFuzzStream.packer_f4be.unpack(self.read_bytes(4))[0]
+        return KaitaiStream.packer_f4be.unpack(self.read_bytes(4))[0]
 
     def read_f8be(self):
-        return KFuzzStream.packer_f8be.unpack(self.read_bytes(8))[0]
+        return KaitaiStream.packer_f8be.unpack(self.read_bytes(8))[0]
 
     # ........................................................................
     # Little-endian
     # ........................................................................
 
     def read_f4le(self):
-        return KFuzzStream.packer_f4le.unpack(self.read_bytes(4))[0]
+        return KaitaiStream.packer_f4le.unpack(self.read_bytes(4))[0]
 
     def read_f8le(self):
-        return KFuzzStream.packer_f8le.unpack(self.read_bytes(8))[0]
+        return KaitaiStream.packer_f8le.unpack(self.read_bytes(8))[0]
 
     # ========================================================================
     # Unaligned bit values
@@ -230,7 +230,7 @@ class KFuzzStream(object):
             bytes_needed = ((bits_needed - 1) // 8) + 1
             buf = self.read_bytes(bytes_needed)
             for byte in buf:
-                byte = KFuzzStream.int_from_byte(byte)
+                byte = KaitaiStream.int_from_byte(byte)
                 self.bits <<= 8
                 self.bits |= byte
                 self.bits_left += 8
@@ -261,7 +261,7 @@ class KFuzzStream(object):
             bytes_needed = ((bits_needed - 1) // 8) + 1
             buf = self.read_bytes(bytes_needed)
             for byte in buf:
-                byte = KFuzzStream.int_from_byte(byte)
+                byte = KaitaiStream.int_from_byte(byte)
                 self.bits |= (byte << self.bits_left)
                 self.bits_left += 8
 
@@ -420,15 +420,15 @@ class KFuzzStream(object):
 
     @staticmethod
     def byte_array_index(data, i):
-        return KFuzzStream.int_from_byte(data[i])
+        return KaitaiStream.int_from_byte(data[i])
 
     @staticmethod
     def byte_array_min(b):
-        return KFuzzStream.int_from_byte(min(b))
+        return KaitaiStream.int_from_byte(min(b))
 
     @staticmethod
     def byte_array_max(b):
-        return KFuzzStream.int_from_byte(max(b))
+        return KaitaiStream.int_from_byte(max(b))
 
     @staticmethod
     def resolve_enum(enum_obj, value):
@@ -463,7 +463,7 @@ class UndecidedEndiannessError(KaitaiStructError):
 
 class ValidationFailedError(KaitaiStructError):
     """Common ancestor for all validation failures. Stores pointer to
-    KFuzzStream IO object which was involved in an error.
+    KaitaiStream IO object which was involved in an error.
     """
     def __init__(self, msg, io, src_path):
         super(ValidationFailedError, self).__init__("at pos %d: validation failed: %s" % (io.pos(), msg), src_path)

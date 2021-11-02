@@ -2,14 +2,14 @@
 
 from pkg_resources import parse_version
 import kfuzzstruct
-from kfuzzstruct import KFuzzStruct, KFuzzStream, BytesIO
+from kfuzzstruct import KaitaiStruct, KaitaiStream, BytesIO
 from enum import Enum
 
 
 if parse_version(kfuzzstruct.__version__) < parse_version('0.9'):
     raise Exception("Incompatible Kaitai Struct Python API: 0.9 or later is required, but you have %s" % (kfuzzstruct.__version__))
 
-class Gif(KFuzzStruct):
+class Gif(KaitaiStruct):
     """GIF (Graphics Interchange Format) is an image file format, developed
     in 1987. It became popular in 1990s as one of the main image formats
     used in World Wide Web.
@@ -49,7 +49,7 @@ class Gif(KFuzzStruct):
         self.logical_screen_descriptor = Gif.LogicalScreenDescriptorStruct(self._io, self, self._root)
         if self.logical_screen_descriptor.has_color_table:
             self._raw_global_color_table = self._io.read_bytes((self.logical_screen_descriptor.color_table_size * 3))
-            _io__raw_global_color_table = KFuzzStream(BytesIO(self._raw_global_color_table))
+            _io__raw_global_color_table = KaitaiStream(BytesIO(self._raw_global_color_table))
             self.global_color_table = Gif.ColorTable(_io__raw_global_color_table, self, self._root)
 
         self.blocks = []
@@ -61,7 +61,7 @@ class Gif(KFuzzStruct):
                 break
             i += 1
 
-    class ImageData(KFuzzStruct):
+    class ImageData(KaitaiStruct):
         """
         .. seealso::
            - section 22 - https://www.w3.org/Graphics/GIF/spec-gif89a.txt
@@ -77,7 +77,7 @@ class Gif(KFuzzStruct):
             self.subblocks = Gif.Subblocks(self._io, self, self._root)
 
 
-    class ColorTableEntry(KFuzzStruct):
+    class ColorTableEntry(KaitaiStruct):
         def __init__(self, _io, _parent=None, _root=None):
             self._io = _io
             self._parent = _parent
@@ -90,7 +90,7 @@ class Gif(KFuzzStruct):
             self.blue = self._io.read_u1()
 
 
-    class LogicalScreenDescriptorStruct(KFuzzStruct):
+    class LogicalScreenDescriptorStruct(KaitaiStruct):
         """
         .. seealso::
            - section 18 - https://www.w3.org/Graphics/GIF/spec-gif89a.txt
@@ -125,7 +125,7 @@ class Gif(KFuzzStruct):
             return self._m_color_table_size if hasattr(self, '_m_color_table_size') else None
 
 
-    class LocalImageDescriptor(KFuzzStruct):
+    class LocalImageDescriptor(KaitaiStruct):
         def __init__(self, _io, _parent=None, _root=None):
             self._io = _io
             self._parent = _parent
@@ -140,7 +140,7 @@ class Gif(KFuzzStruct):
             self.flags = self._io.read_u1()
             if self.has_color_table:
                 self._raw_local_color_table = self._io.read_bytes((self.color_table_size * 3))
-                _io__raw_local_color_table = KFuzzStream(BytesIO(self._raw_local_color_table))
+                _io__raw_local_color_table = KaitaiStream(BytesIO(self._raw_local_color_table))
                 self.local_color_table = Gif.ColorTable(_io__raw_local_color_table, self, self._root)
 
             self.image_data = Gif.ImageData(self._io, self, self._root)
@@ -178,7 +178,7 @@ class Gif(KFuzzStruct):
             return self._m_color_table_size if hasattr(self, '_m_color_table_size') else None
 
 
-    class Block(KFuzzStruct):
+    class Block(KaitaiStruct):
         def __init__(self, _io, _parent=None, _root=None):
             self._io = _io
             self._parent = _parent
@@ -186,7 +186,7 @@ class Gif(KFuzzStruct):
             self._read()
 
         def _read(self):
-            self.block_type = KFuzzStream.resolve_enum(Gif.BlockType, self._io.read_u1())
+            self.block_type = KaitaiStream.resolve_enum(Gif.BlockType, self._io.read_u1())
             _on = self.block_type
             if _on == Gif.BlockType.extension:
                 self.body = Gif.Extension(self._io, self, self._root)
@@ -194,7 +194,7 @@ class Gif(KFuzzStruct):
                 self.body = Gif.LocalImageDescriptor(self._io, self, self._root)
 
 
-    class ColorTable(KFuzzStruct):
+    class ColorTable(KaitaiStruct):
         """
         .. seealso::
            - section 19 - https://www.w3.org/Graphics/GIF/spec-gif89a.txt
@@ -214,7 +214,7 @@ class Gif(KFuzzStruct):
 
 
 
-    class Header(KFuzzStruct):
+    class Header(KaitaiStruct):
         """
         .. seealso::
            - section 17 - https://www.w3.org/Graphics/GIF/spec-gif89a.txt
@@ -232,7 +232,7 @@ class Gif(KFuzzStruct):
             self.version = (self._io.read_ascii(3)).decode(u"ASCII")
 
 
-    class ExtGraphicControl(KFuzzStruct):
+    class ExtGraphicControl(KaitaiStruct):
         """
         .. seealso::
            - section 23 - https://www.w3.org/Graphics/GIF/spec-gif89a.txt
@@ -271,7 +271,7 @@ class Gif(KFuzzStruct):
             return self._m_user_input_flag if hasattr(self, '_m_user_input_flag') else None
 
 
-    class Subblock(KFuzzStruct):
+    class Subblock(KaitaiStruct):
         def __init__(self, _io, _parent=None, _root=None):
             self._io = _io
             self._parent = _parent
@@ -283,7 +283,7 @@ class Gif(KFuzzStruct):
             self.bytes = self._io.read_bytes(self.len_bytes)
 
 
-    class ApplicationId(KFuzzStruct):
+    class ApplicationId(KaitaiStruct):
         def __init__(self, _io, _parent=None, _root=None):
             self._io = _io
             self._parent = _parent
@@ -298,7 +298,7 @@ class Gif(KFuzzStruct):
             self.application_auth_code = self._io.read_bytes(3)
 
 
-    class ExtApplication(KFuzzStruct):
+    class ExtApplication(KaitaiStruct):
         def __init__(self, _io, _parent=None, _root=None):
             self._io = _io
             self._parent = _parent
@@ -317,7 +317,7 @@ class Gif(KFuzzStruct):
                 i += 1
 
 
-    class Subblocks(KFuzzStruct):
+    class Subblocks(KaitaiStruct):
         def __init__(self, _io, _parent=None, _root=None):
             self._io = _io
             self._parent = _parent
@@ -335,7 +335,7 @@ class Gif(KFuzzStruct):
                 i += 1
 
 
-    class Extension(KFuzzStruct):
+    class Extension(KaitaiStruct):
         def __init__(self, _io, _parent=None, _root=None):
             self._io = _io
             self._parent = _parent
@@ -343,7 +343,7 @@ class Gif(KFuzzStruct):
             self._read()
 
         def _read(self):
-            self.label = KFuzzStream.resolve_enum(Gif.ExtensionLabel, self._io.read_u1())
+            self.label = KaitaiStream.resolve_enum(Gif.ExtensionLabel, self._io.read_u1())
             _on = self.label
             if _on == Gif.ExtensionLabel.application:
                 self.body = Gif.ExtApplication(self._io, self, self._root)
